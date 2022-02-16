@@ -17,6 +17,12 @@ namespace UnityTestGameServer
             Server.players[clientId].tcp.SendData(packet);
         }
 
+        private static void SendUDP(int clientId, Packet packet)
+        {
+            packet.WriteLength();
+            Server.players[clientId].udp.SendData(packet);
+        }
+
         private static void SendTCPAllClients(int exceptClient, Packet packet)
         {
             foreach (int id in Server.players.Keys)
@@ -24,6 +30,16 @@ namespace UnityTestGameServer
                 if(id != exceptClient) Server.players[id].tcp.SendData(packet);
             }
         }
+
+        private static void SendUDPAllClients(int exceptClient, Packet packet)
+        {
+            foreach (int id in Server.players.Keys)
+            {
+                if (id != exceptClient) Server.players[id].udp.SendData(packet);
+            }
+        }
+
+
 
         public static void Welcome(int clientId, string msg)
         {
@@ -33,6 +49,16 @@ namespace UnityTestGameServer
                 packet.Write(clientId);
 
                 SendTCP(clientId, packet);
+            }
+        }
+
+        public static void UDPTest(int playerId)
+        {
+            using (Packet packet = new Packet((int)ServerPackets.udpTest))
+            {
+                
+                packet.Write("TESTDATA");
+                SendUDP(playerId, packet);
             }
         }
 

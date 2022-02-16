@@ -15,6 +15,7 @@ namespace UnityTestGameServer
         public static Dictionary<int, Client> players = new Dictionary<int, Client>();
 
         public static TcpListener tcpListener;
+        public static UdpClient udpListener;
 
         public static void Start(int maxPlayers, int port)
         {
@@ -23,10 +24,70 @@ namespace UnityTestGameServer
 
             InitializeServerData();
             tcpListener = new TcpListener(IPAddress.Any, port);
+            udpListener = new UdpClient(Port);
             tcpListener.Start();
             tcpListener.BeginAcceptTcpClient(new AsyncCallback(TCPConnectCallback), null);
+            udpListener.BeginReceive(OnUdpRecieved, null);
             Console.WriteLine($"Server started on port {port}");
         }
+
+        public static void OnUdpRecieved(IAsyncResult result)
+        {
+            try
+            {
+                IPEndPoint clientEndPoint = new IPEndPoint(IPAddress.Any, 0);
+                byte[] data = udpListener.EndReceive(result, ref clientEndPoint);
+                
+                udpListener.BeginReceive(OnUdpRecieved, null);
+
+                if (data.Length < 4) return;
+                
+                using (Packet packet = new Packet(data))
+                {
+                    int playerId = packet.ReadInt();
+
+                    // if (clientId == 0) return;
+
+                    if (players[playerId].udp.endPoint == null)
+                    {
+                        // client is registering to game
+                        players[playerId].udp.Connect(clientEndPoint);
+                        return;
+                    }
+
+                    if (players[playerId].udp.endPoint.Equals(clientEndPoint))
+                    {
+                        players[playerId].udp.HandleData(packet); 
+
+                    } else
+                    {
+                        Console.WriteLine($"User at Address {clientEndPoint.ToString()} seems to be impersonating another player...");
+                    }
+                }
+
+            } catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+        }
+
+        public static void SendUDPData(IPEndPoint clientEndPoint, Packet packet)
+        {
+            try
+            {
+                if (clientEndPoint != null)
+                {
+                    udpListener.BeginSend(packet.ToArray(), packet.Length(), clientEndPoint, null, null);
+                }
+
+
+            } catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+        }
+        
+
 
         private static void TCPConnectCallback(IAsyncResult result)
         {
@@ -55,6 +116,7 @@ namespace UnityTestGameServer
 
             packetHandlers = new Dictionary<int, PacketHandler>();
             packetHandlers[(int)ClientPackets.welcomeReceived] = ServerHandle.WelcomeRecieved;
+            packetHandlers[(int)ClientPackets.udpRecieved] = ServerHandle.OnUdpTestRecieved;
             Console.WriteLine("Init packet handlers...");
         }
 

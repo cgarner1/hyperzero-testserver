@@ -11,11 +11,13 @@ namespace UnityTestGameServer
         public static int DATA_BUFFER_SIZE = 4096;
         public int id;
         public TCP tcp;
+        public UDP udp;
 
         public Client(int id)
         {
             this.id = id;
             tcp = new TCP(id);
+            udp = new UDP(id);
         }
 
     }
@@ -122,6 +124,45 @@ namespace UnityTestGameServer
         }
 
 
+
+
+    }
+    public class UDP
+    {
+        public IPEndPoint endPoint;
+        private int id;
+
+        public UDP(int id)
+        {
+            this.id = id;
+        }
+
+        public void Connect(IPEndPoint endPoint)
+        {
+            this.endPoint = endPoint;
+            ServerSend.UDPTest(id);
+        }
+
+        public void SendData(Packet packet)
+        {
+            Server.SendUDPData(endPoint, packet);
+        }
+
+        public void HandleData(Packet packet)
+        {
+            int packetLen = packet.ReadInt(); // failed to read packet length
+            byte[] data = packet.ReadBytes(packetLen);
+            
+
+            ThreadManager.ExecuteOnMainThread(() =>
+            {
+                using (Packet packet = new Packet(data))
+                {
+                    int packetHandlerId = packet.ReadInt();
+                    Server.packetHandlers[packetHandlerId](id, packet);
+                }
+            });
+        }
 
 
     }
