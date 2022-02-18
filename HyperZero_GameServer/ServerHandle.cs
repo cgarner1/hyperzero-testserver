@@ -21,5 +21,11 @@ namespace UnityTestGameServer
                 Console.WriteLine("Oh shit oh fuck, the client ID doesn't match the id sent in the packet...");
             }
         }
+
+        public static void OnUdpTestRecieved(int clientid, Packet packet)
+        {
+            string msg = packet.ReadString();
+            Console.WriteLine(msg);
+        }
     }
 }
