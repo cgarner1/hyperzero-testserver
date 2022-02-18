@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace UnityTestGameServer
+namespace HyperZero_GameServer
 {
     class ServerHandle
     {
@@ -20,6 +20,8 @@ namespace UnityTestGameServer
             {
                 Console.WriteLine("Oh shit oh fuck, the client ID doesn't match the id sent in the packet...");
             }
+
+            Server.players[clientId].SendIntoGame(username);
         }
 
         public static void OnUdpTestRecieved(int clientid, Packet packet)

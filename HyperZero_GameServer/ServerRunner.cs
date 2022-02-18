@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 
-namespace UnityTestGameServer
+namespace HyperZero_GameServer
 {
     class ServerRunner
     {

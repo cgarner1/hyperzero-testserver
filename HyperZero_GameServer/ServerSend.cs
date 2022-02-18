@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-namespace UnityTestGameServer
+namespace HyperZero_GameServer
 {
     // defines packets to be send to clients
     class ServerSend
@@ -52,13 +52,17 @@ namespace UnityTestGameServer
             }
         }
 
-        public static void UDPTest(int playerId)
+        /// <summary>Send info about where a player should spawn (TCP)</summary>
+        public static void SpawnPlayer(int clientId, Player player)
         {
-            using (Packet packet = new Packet((int)ServerPackets.udpTest))
+            using (Packet packet = new Packet((int)ServerPackets.spawnPlayer))
             {
-                
-                packet.Write("TESTDATA");
-                SendUDP(playerId, packet);
+                packet.Write(player.id);
+                packet.Write(player.username);
+                packet.Write(player.position);
+
+                SendTCP(clientId, packet);
+
             }
         }
 

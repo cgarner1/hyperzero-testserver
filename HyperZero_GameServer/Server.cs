@@ -3,7 +3,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Collections.Generic;
 
-namespace UnityTestGameServer
+namespace HyperZero_GameServer
 {
     class Server
     {
@@ -116,7 +116,7 @@ namespace UnityTestGameServer
 
             packetHandlers = new Dictionary<int, PacketHandler>();
             packetHandlers[(int)ClientPackets.welcomeReceived] = ServerHandle.WelcomeRecieved;
-            packetHandlers[(int)ClientPackets.udpRecieved] = ServerHandle.OnUdpTestRecieved;
+            
             Console.WriteLine("Init packet handlers...");
         }
 

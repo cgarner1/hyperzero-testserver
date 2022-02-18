@@ -1,22 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Numerics;
 
-namespace UnityTestGameServer
+namespace HyperZero_GameServer
 {
     /// <summary>Sent from server to client.</summary>
     public enum ServerPackets
     {
         welcome = 1,
-        udpTest
+        spawnPlayer,
+        playerPosition,
+        playerRotation
     }
 
     /// <summary>Sent from client to server.</summary>
     public enum ClientPackets
     {
         welcomeReceived = 1,
-        udpRecieved
-        
+        playerMovement
+
     }
 
     public class Packet : IDisposable
@@ -117,6 +120,8 @@ namespace UnityTestGameServer
         {
             buffer.Add(_value);
         }
+
+
         /// <summary>Adds an array of bytes to the packet.</summary>
         /// <param name="_value">The byte array to add.</param>
         public void Write(byte[] _value)
@@ -160,6 +165,22 @@ namespace UnityTestGameServer
             Write(_value.Length); // Add the length of the string to the packet
             buffer.AddRange(Encoding.ASCII.GetBytes(_value)); // Add the string itself
         }
+
+        public void Write(Vector3 vec)
+        {
+            Write(vec.X);
+            Write(vec.Y);
+            Write(vec.Z);
+        }
+
+        public void Write(Quaternion q)
+        {
+            Write(q.X);
+            Write(q.Y);
+            Write(q.Z);
+            Write(q.W);
+        }
+
         #endregion
 
         #region Read Data
@@ -331,6 +352,18 @@ namespace UnityTestGameServer
                 throw new Exception("Could not read value of type 'string'!");
             }
         }
+
+        public Vector3 ReadVector3(bool moveReadPos = true)
+        {
+            return new Vector3(ReadFloat(moveReadPos), ReadFloat(moveReadPos), ReadFloat(moveReadPos));
+        }
+
+        public Quaternion ReadQuaternion(bool moveReadPos = true)
+        {
+            return new Quaternion(ReadFloat(moveReadPos), ReadFloat(moveReadPos), ReadFloat(moveReadPos), ReadFloat(moveReadPos));
+        }
+
+
         #endregion
 
         private bool disposed = false;
