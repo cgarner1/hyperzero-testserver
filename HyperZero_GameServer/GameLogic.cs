@@ -10,6 +10,10 @@ namespace HyperZero_GameServer
     {
         public static void Update()
         {
+            foreach(Client client in Server.players.Values)
+            {
+                if (client.playerRef != null) client.playerRef.Update();
+            }
             ThreadManager.UpdateMain();
         }
     }

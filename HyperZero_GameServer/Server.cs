@@ -116,7 +116,10 @@ namespace HyperZero_GameServer
 
             packetHandlers = new Dictionary<int, PacketHandler>();
             packetHandlers[(int)ClientPackets.welcomeReceived] = ServerHandle.WelcomeRecieved;
-            
+            packetHandlers[(int)ClientPackets.playerMovement] = ServerHandle.PlayerMove;
+
+
+
             Console.WriteLine("Init packet handlers...");
         }
 

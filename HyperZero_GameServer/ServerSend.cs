@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace HyperZero_GameServer
 {
-    // defines packets to be send to clients
+    
     class ServerSend
     {
 
@@ -25,6 +25,7 @@ namespace HyperZero_GameServer
 
         private static void SendTCPAllClients(int exceptClient, Packet packet)
         {
+            packet.WriteLength();
             foreach (int id in Server.players.Keys)
             {
                 if(id != exceptClient) Server.players[id].tcp.SendData(packet);
@@ -33,13 +34,23 @@ namespace HyperZero_GameServer
 
         private static void SendUDPAllClients(int exceptClient, Packet packet)
         {
+            packet.WriteLength();
             foreach (int id in Server.players.Keys)
             {
                 if (id != exceptClient) Server.players[id].udp.SendData(packet);
             }
         }
 
+        private static void SendUDPAllClients(Packet packet)
+        {
+            packet.WriteLength();
+            foreach (int id in Server.players.Keys)
+            {
+                Server.players[id].udp.SendData(packet);
+            }
+        }
 
+        #region Messages
 
         public static void Welcome(int clientId, string msg)
         {
@@ -60,11 +71,37 @@ namespace HyperZero_GameServer
                 packet.Write(player.id);
                 packet.Write(player.username);
                 packet.Write(player.position);
+                packet.Write(player.rotation);
 
                 SendTCP(clientId, packet);
+                // Console.WriteLine($"Sending Player Spawn Request for player {player.username} to client {clientId}");
 
             }
         }
+
+        public static void PlayerPos(Player player)
+        {
+            using(Packet packet = new Packet((int)ServerPackets.playerPosition))
+            {
+                packet.Write(player.id);
+                packet.Write(player.position);
+                ServerSend.SendUDPAllClients(packet);
+            }
+        }
+
+
+
+        public static void PlayerRotation(Player player)
+        {
+            using (Packet packet = new Packet((int)ServerPackets.playerRotation))
+            {
+                packet.Write(player.id);
+                packet.Write(player.rotation);
+                ServerSend.SendUDPAllClients(player.id, packet);
+            }
+        }
+
+        #endregion
 
 
     }

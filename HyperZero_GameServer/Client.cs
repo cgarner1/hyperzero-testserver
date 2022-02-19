@@ -43,10 +43,7 @@ namespace HyperZero_GameServer
                     ServerSend.SpawnPlayer(player.id, this.playerRef);
                 }
             }
-
-
         }
-
 
         public class TCP
         {

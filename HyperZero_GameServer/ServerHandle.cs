@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Numerics;
 
 namespace HyperZero_GameServer
 {
@@ -28,6 +25,19 @@ namespace HyperZero_GameServer
         {
             string msg = packet.ReadString();
             Console.WriteLine(msg);
+        }
+
+        public static void PlayerMove(int clientId, Packet packet)
+        {
+            bool[] inputs = new bool[packet.ReadInt()];
+            for (int i=0;i<inputs.Length;i++)
+            {
+                inputs[i] = packet.ReadBool();
+            }
+            // CURRENTLY AUTHORITY FOR ROTATION LIES W CLIENT!!!
+            Quaternion rotation = packet.ReadQuaternion(); 
+
+            Server.players[clientId].playerRef.SetInputs(inputs, rotation);
         }
     }
 }
